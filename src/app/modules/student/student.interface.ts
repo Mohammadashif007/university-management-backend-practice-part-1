@@ -1,3 +1,4 @@
+
 export type TUserName = {
   firstName: string;
   middleName?: string;
@@ -21,10 +22,11 @@ export type TLocalGuardian = {
 };
 
 export type TStudent = {
-  id: string;
-  name: TStudent;
+  id?: string;
+  password: string;
+  name: TUserName;
   gender: "male" | "female";
-  dateOfBirth: string;
+  dateOfBirth?: string;
   email: string;
   contactNo: string;
   emergencyContactNo: string;
@@ -34,5 +36,7 @@ export type TStudent = {
   guardian: TGuardian;
   localGuardian: TLocalGuardian;
   profileImage?: string;
-  isActive: "active" | "block"
+  isActive: "active" | "block";
+  isDeleted: boolean;
 };
+
