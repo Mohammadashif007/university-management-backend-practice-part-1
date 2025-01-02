@@ -5,8 +5,7 @@ import {
   TStudent,
   TUserName,
 } from "./student.interface";
-import bcrypt from "bcrypt";
-import config from "../../config";
+
 
 const userNameSchema = new Schema<TUserName>({
   firstName: { type: String, required: true },
@@ -30,27 +29,29 @@ const localGuardianSchema = new Schema<TLocalGuardian>({
   address: { type: String, required: true },
 });
 
-const studentSchema = new Schema<TStudent>({
-  id: { type: String },
-  password: { type: String, required: true },
-  name: userNameSchema,
-  gender: { type: String, enum: ["male", "female"] },
-  dateOfBirth: { type: String },
-  email: { type: String, required: true, unique: true },
-  contactNo: { type: String, required: true },
-  emergencyContactNo: { type: String, required: true },
-  bloodGroup: {
-    type: String,
-    enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
+const studentSchema = new Schema<TStudent>(
+  {
+    id: { type: String },
+    name: userNameSchema,
+    user: { type: Schema.Types.ObjectId, required: true, unique: true, ref: "User" },
+    gender: { type: String, enum: ["male", "female"] },
+    dateOfBirth: { type: String },
+    email: { type: String, required: true, unique: true },
+    contactNo: { type: String, required: true },
+    emergencyContactNo: { type: String, required: true },
+    bloodGroup: {
+      type: String,
+      enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
+    },
+    presentAddress: { type: String, required: true },
+    permanentAddress: { type: String, required: true },
+    guardian: guardianSchema,
+    localGuardian: localGuardianSchema,
+    profileImage: { type: String },
+    isDeleted: { type: Boolean, default: false },
   },
-  presentAddress: { type: String, required: true },
-  permanentAddress: { type: String, required: true },
-  guardian: guardianSchema,
-  localGuardian: localGuardianSchema,
-  profileImage: { type: String },
-  isActive: { type: String, enum: ["active", "block"], required: true },
-  isDeleted: { type: Boolean, default: false },
-},{toJSON: {virtuals: true}});
+  { toJSON: { virtuals: true } },
+);
 
 // ! virtual
 studentSchema.virtual("fullName").get(function () {
@@ -66,20 +67,7 @@ studentSchema.pre("save", async function (next) {
   next();
 });
 
-// ! hash password
-studentSchema.pre("save", async function (next) {
-  this.password = await bcrypt.hash(
-    this.password,
-    Number(config.bcrypt_salt_rounds),
-  );
-  next();
-});
 
-// ! empty password field
-studentSchema.post("save", async function (doc, next) {
-  doc.password = "";
-  next();
-});
 
 // ! query middleware
 studentSchema.pre("find", async function (next) {

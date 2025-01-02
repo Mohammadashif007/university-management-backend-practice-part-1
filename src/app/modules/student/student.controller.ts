@@ -1,27 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, Response } from "express";
 import { StudentServices } from "./student.service";
-import { StudentValidations } from "./student.validation";
-
-const createStudent = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const { student } = req.body;
-    const validatedData =
-      StudentValidations.studentValidationSchema.parse(student);
-    const result = await StudentServices.createStudentIntoDB(validatedData);
-    res.status(201).json({
-      success: true,
-      message: "Student created successfully",
-      data: result,
-    });
-  } catch (error: any) {
-    next(error);
-  }
-};
+import sendResponse from "../../utils/sendResponse";
+import status from "http-status";
 
 const getAllStudents = async (
   req: Request,
@@ -30,10 +11,11 @@ const getAllStudents = async (
 ) => {
   try {
     const result = await StudentServices.getAllStudentsFromDB();
-    res.status(201).json({
+    sendResponse(res, {
       success: true,
-      message: "Student retrieve successfully",
+      message: "All Student retrieve successfully",
       data: result,
+      statusCode: status.OK,
     });
   } catch (error: any) {
     next(error);
@@ -48,10 +30,11 @@ const getSingleStudent = async (
   try {
     const { studentId } = req.params;
     const result = await StudentServices.getSingleStudentFromDB(studentId);
-    res.status(201).json({
+    sendResponse(res, {
       success: true,
-      message: "single student retrieve successfully",
+      message: "Single Student retrieve successfully",
       data: result,
+      statusCode: status.OK,
     });
   } catch (error: any) {
     next(error);
@@ -66,11 +49,15 @@ const updateStudent = async (
   try {
     const { studentId } = req.params;
     const { student } = req.body;
-    const result = await StudentServices.updateStudentIntoDB(studentId, student);
-    res.status(200).json({
+    const result = await StudentServices.updateStudentIntoDB(
+      studentId,
+      student,
+    );
+    sendResponse(res, {
       success: true,
-      message: "student updated successfully",
+      message: "Student updated successfully",
       data: result,
+      statusCode: status.OK,
     });
   } catch (error) {
     next(error);
@@ -85,10 +72,11 @@ const deleteStudent = async (
   try {
     const { studentId } = req.params;
     const result = await StudentServices.deleteStudentFromDB(studentId);
-    res.status(200).json({
+    sendResponse(res, {
       success: true,
-      message: "student deleted successfully",
+      message: "Student deleted successfully",
       data: result,
+      statusCode: status.OK,
     });
   } catch (error: any) {
     next(error);
@@ -96,7 +84,6 @@ const deleteStudent = async (
 };
 
 export const StudentControllers = {
-  createStudent,
   getAllStudents,
   getSingleStudent,
   deleteStudent,
